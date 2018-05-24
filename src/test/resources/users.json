@@ -1,0 +1,53 @@
+[
+  {
+    "username":"shadow",
+    "email":"shadow@mail.com",
+    "password":"asd123",
+    "object":{
+      "text":"lorem ipsum",
+      "value": 123
+    },
+    "lista":[
+      {
+        "field":123
+      },
+      {
+        "field":234
+      }
+    ]
+  },
+  {
+    "username":"kyle",
+    "email":"kyle@mail.com",
+    "password":"ter537",
+    "object":{
+      "text":"lorem ipsum",
+      "value": 123
+    },
+    "lista":[
+      {
+        "field":123
+      },
+      {
+        "field":234
+      }
+    ]
+  },
+  {
+    "username":"epic",
+    "email":"epic@mail.com",
+    "password":"nju453",
+    "object":{
+      "text":"lorem ipsum",
+      "value": 123
+    },
+    "lista":[
+      {
+        "field":123
+      },
+      {
+        "field":234
+      }
+    ]
+  }
+]

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%-5level] %logger{15} - %msg%n%rEx</pattern>
+        </encoder>
+        <immediateFlush>false</immediateFlush>
+    </appender>
+
+    <!--
+    Poziomy logowania:
+    FATAL   <- widoczne tylko wiadomości fatal
+    ERROR   <- widoczne fatal i error
+    WARN    <- widoczne fatal, error i warn
+    INFO    <- widoczne wszystkie poza trace i debug
+    DEBUG   <- widoczne wszystkie poza trace
+    TRACE   <- widoczne wszystkie wiadomości
+    ==========
+    ALL     <- widoczne wszystkie wiadomości
+    -->
+
+    <!--
+    Gatling loguje:
+    - poprawne odpowiedzi HTTP na poziomie trace
+    - błędne odpowiedzi HTTP na poziomie debug
+    - informacje o wystąpieniu błędu na poziomie warn
+
+    Statystyki są logowane niezależnie, można je wyłączyć w gatling.conf
+    -->
+
+    <logger name="io.gatling.http.ahc" level="TRACE" />
+    <logger name="io.gatling.http.response" level="TRACE" />
+
+    <root level="ERROR">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+</configuration>
