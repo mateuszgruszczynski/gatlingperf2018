@@ -4,6 +4,7 @@ import com.performance.project.config.{CinemaAssertions, CinemaProtocols}
 import com.performance.project.model.MovieDataProvider
 import com.performance.project.steps.{MoviesSteps, ScreeningsSteps}
 import io.gatling.core.Predef._
+import io.gatling.http.Predef.http
 
 class AddMovieWithScreeningSimulation extends Simulation {
 
@@ -13,5 +14,9 @@ class AddMovieWithScreeningSimulation extends Simulation {
 
   import scala.concurrent.duration._
 
-  setUp(scn.inject(constantUsersPerSec(0.1).during(30 seconds)).protocols(CinemaProtocols.loadBalancer)).assertions(CinemaAssertions.globalAssertions)
+  setUp(
+    scn
+      .inject(constantUsersPerSec(2).during(10 second))
+      .protocols(http.baseURL("http://10.10.0.100:9000"))
+  )
 }
