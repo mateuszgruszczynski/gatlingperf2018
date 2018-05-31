@@ -13,5 +13,6 @@ libraryDependencies ++= Seq(
   "org.postgresql"        % "postgresql"                % "42.2.2",
   //json4s
   "org.json4s"            % "json4s-jackson_2.12"       % "3.5.3",
-  "org.json4s"            %% "json4s-ext"               % "3.5.3"
+  "org.json4s"            %% "json4s-ext"               % "3.5.3",
+  "com.typesafe"          % "config"                    % "1.3.3"
 )

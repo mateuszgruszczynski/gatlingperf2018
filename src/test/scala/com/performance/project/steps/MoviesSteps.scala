@@ -40,3 +40,27 @@ object MoviesSteps extends StepsBase {
   def searchMovieByTitleFromAttribute(titleKey: String) = http("Search movie")
     .get("/movies/search?title=${" + titleKey + "}").check(status.is(200))
 }
+
+object MovieStepsDwa extends StepsBase {
+
+  def addMovie(movie: => Movie) = http("Add movie")
+    .post("/movies")
+    .body(StringBody(session => jsonStringFromObject(movie)))
+    .check(jsonPath("$.id").ofType[Int].saveAs("movieID"))
+    .check(jsonPath("$.genre").saveAs("moveGenre"))
+    .asJSON
+    .check(status.is(200))
+
+  def getMoviesWithStatusAtribute(stat: => Int) = http("Get movies")
+    .get("/movies")
+    .check(status.is(stat))
+
+  def getMoviesWithPageAtribute(page: => Int) = http("Get movies with page")
+    .get(s"/movies?page=?${page}")
+    .check(status.is(200))
+
+  def getMoviesByGenre(moveGenre: => String) = http("Get movie title by genie")
+    .get("/movies/search?genre=${" + moveGenre + "}")
+    .check(status.is(200))
+    .check(jsonPath("$[0].genre").is("${" + moveGenre + "}"))
+}

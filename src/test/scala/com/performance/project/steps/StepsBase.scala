@@ -14,7 +14,7 @@ abstract class StepsBase {
   // Generuje JSON w postaci stringa na bazie przekazanego obiektu
   def jsonStringFromObject(obj: => AnyRef) = write(obj)
 
-  // def jsonBodyFromObject(obj: => AnyRef) = StringBody(s => write(obj)) <-- Tego się pozbywam i zastępuje to tą metodą z góry
+  //def jsonBodyFromObject(obj: => AnyRef) = StringBody(s => write(obj)) <-- Tego się pozbywam i zastępuje to tą metodą z góry
 
   def readJsonBodyAs[T](jsonString: => String)(implicit m: Manifest[T]) = try {
     read[T](jsonString)
