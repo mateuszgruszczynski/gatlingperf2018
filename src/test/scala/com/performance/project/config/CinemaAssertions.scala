@@ -14,8 +14,6 @@ object CinemaAssertions {
     global.responseTime.percentile4.lt(3000)
   )
 
-  // parametryzowane asercje - z użyciem parametru factor można je "skalować" zmniejszając i zwiększając wymagania,
-  // zachowując jednak proporcej pomiędzy metrykami
   def scaledAssertions(factor: Double = 1.0) = Seq(
     global.responseTime.max.lt((1000 * factor).toInt),
     global.responseTime.percentile3.lt((500 * factor).toInt),
