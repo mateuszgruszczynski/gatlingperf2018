@@ -15,7 +15,7 @@ class AuthUserSimulation extends Simulation {
 
   setUp(
     scn
-      .inject(constantUsersPerSec(2).during(10 second))
-      .protocols(http.baseURL("http://10.10.0.100:9000"))
+      .inject(constantUsersPerSec(2).during(120 second))
+      .protocols(http.baseURL("http://192.168.88.223:9000"))
   )
 }

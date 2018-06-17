@@ -135,6 +135,7 @@ object ExampleSteps extends StepsBase {
 
   def getUserAndCheckId(userIdAttr: String, userTokenAttr: String) = http("get user")
     .get(s"/users/$${$userIdAttr}")
+    .header("Http-auth-token", s"$${$userTokenAttr}")
     .check(jsonPath("$.id").is(s"$${$userIdAttr}"))
 
   exec(getUserWalletValue("userIdAtribute", "userTokenAttribute"))
@@ -210,11 +211,11 @@ object ExampleSteps extends StepsBase {
       .check(jsonPath("$.value").ofType[Double].exists.saveAs(valueAttrName))
       .check(extraChecks: _*)
 
-//  exec(getUserWalletValue("userData", "userToken", "walletAmount")
-//
-//  exec(getUserWalletValue("userData", "userToken", "walletAmount", jsonPath("$.id").exists, responseTimeInMillis.lessThan(500)))
-//
-//  exec(getUserWalletValue("userData", "userToken", "walletAmount", responseTimeInMillis.lessThan(1000)))
+  //  exec(getUserWalletValue("userData", "userToken", "walletAmount")
+  //
+  //  exec(getUserWalletValue("userData", "userToken", "walletAmount", jsonPath("$.id").exists, responseTimeInMillis.lessThan(500)))
+  //
+  //  exec(getUserWalletValue("userData", "userToken", "walletAmount", responseTimeInMillis.lessThan(1000)))
 
 
 

@@ -11,6 +11,6 @@ object IDERunner extends App {
   props.sourcesDirectory("./src/main/scala")
   props.binariesDirectory("./target/classes")
   //props.simulationClass(classOf[UpdateWalletSimulation].getName)
-  props.simulationClass(classOf[AddMovieGetMoviesSimulation].getName)
+  props.simulationClass(classOf[AuthUserSimulation].getName)
   Gatling.fromMap(props.build)
 }

@@ -29,8 +29,8 @@
     Statystyki są logowane niezależnie, można je wyłączyć w gatling.conf
     -->
 
-    <logger name="io.gatling.http.ahc" level="ALL" />
-    <logger name="io.gatling.http.response" level="ALL" />
+    <logger name="io.gatling.http.ahc" level="INFO" />
+    <logger name="io.gatling.http.response" level="INFO" />
 
     <root level="ERROR">
         <appender-ref ref="CONSOLE" />
