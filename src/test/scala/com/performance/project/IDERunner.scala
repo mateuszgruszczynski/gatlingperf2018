@@ -1,6 +1,6 @@
 package com.performance.project
 
-import com.performance.project.simulations.{AddMovieSimulationBaseViaGateway, AddMovieSimulationViaLBHighLoad, AddMovieWithScreeningSimulation, AuthUserSimulation}
+import com.performance.project.simulations._
 import io.gatling.app.Gatling
 import io.gatling.core.config.{GatlingConfiguration, GatlingPropertiesBuilder}
 
@@ -10,6 +10,7 @@ object IDERunner extends App {
   GatlingConfiguration
   props.sourcesDirectory("./src/main/scala")
   props.binariesDirectory("./target/classes")
-  props.simulationClass(classOf[AuthUserSimulation].getName)
+  //props.simulationClass(classOf[UpdateWalletSimulation].getName)
+  props.simulationClass(classOf[AddMovieGetMoviesSimulation].getName)
   Gatling.fromMap(props.build)
 }

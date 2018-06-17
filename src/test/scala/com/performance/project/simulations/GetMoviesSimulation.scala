@@ -20,7 +20,9 @@ abstract class GetMoviesSimulation extends Simulation{
     )
 
   setUp(
-    scn.inject(CinemaProfiles.constantWithWarmup(2, 10)).protocols(protocol)
+    scn
+      .inject(CinemaProfiles.constantWithWarmup(2, 10))
+      .protocols(protocol)
   ).assertions(CinemaAssertions.globalAssertions)
 }
 

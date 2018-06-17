@@ -10,7 +10,8 @@ class AuthUserSimulation extends Simulation {
 
   val scn = scenario("Add movie")
     .exec(ExampleSteps.addUserAndSaveRequestData(UserDataProvider.randomUser, "userData"))
-    .exec(ExampleSteps.authenticateUserAndSaveToken("userData", "userToken"))
+    .exec(ExampleSteps.authenticateUserAndSaveToken("userData", "userToken", "userId"))
+    .exec(ExampleSteps.getUserAndCheckId("userId", "userToken"))
 
   setUp(
     scn

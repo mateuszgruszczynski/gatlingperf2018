@@ -1,8 +1,11 @@
 package com.performance.project.steps
 
-import com.performance.project.model.{AuthorizationRequest, User}
+import com.performance.project.model.{AuthorizationRequest, Movie, User, UserDataProvider}
 import io.gatling.core.Predef._
+import io.gatling.core.session.Expression
 import io.gatling.http.Predef._
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckScope.Url
 
 import scala.reflect.io.File
 import scala.util.Random
@@ -64,10 +67,16 @@ object ExampleSteps extends StepsBase {
 
   // Dodawanie użytkownika z użyciem call by name
 
-  def addUser(user: => User) = {
+  def addUser(user: => User, extraChecks: HttpCheck*) = {
     http("Add user").post("/users")
       .body(StringBody(session => jsonStringFromObject(user)))
+      .check(extraChecks: _*) // a, b, c, d
+      //.check(extraChecks) // Seq[a, b, c, d]
+      .check(jsonPath("$[*].genre"))
   }
+
+  exec(addUser(UserDataProvider.randomUser, status.is(200), jsonPath("$.id").exists.saveAs("userId")))
+  exec(addUser(UserDataProvider.randomUser))
 
   //Zapisywanie hasła do sesji jest problematyczne w takim wypadku:
   def addUserAndSavePassword(user: => User) = {
@@ -84,6 +93,17 @@ object ExampleSteps extends StepsBase {
       )
   }
 
+  def getMoviesByGenre(movieGenre: String) = http("Get movie title by genie")
+    .get("/movies/search?genre=${" + movieGenre + "}")
+    .check(status.is(200))
+    .check(jsonPath("$[0].genre").is("${" + movieGenre + "}"))
+    .check(bodyString.transform(
+      (movies, session) => readJsonBodyAs[List[Movie]](movies)
+        .forall(
+          m => m.genre == session(movieGenre).as[String]
+        )
+    ).is(true))
+
   //Budowanie zapytania z 2 atrybutów
   def authenticateUser(userAttrName: String) = {
     http("Authenticate user").post("/authenticate")
@@ -99,7 +119,30 @@ object ExampleSteps extends StepsBase {
       )
   }
 
-  def authenticateUserAndSaveToken(userAttrName: String, tokenAttrName: String) = {
+
+
+
+
+  def getUserWalletValue(userId: String, userToken: String) = http("get user wallet value")
+    .get(s"/users/$${$userId}/wallet")  // /users/${userIdAtribute}/wallet
+    .header("Http-Auth-Token", "${userToken}")
+    .check(jsonPath("$.value").exists.saveAs("userWalletValue"))
+
+  def getUserWalletValueById(userId: => Int, userToken: String) = http("get user wallet value")
+    .get(s"/users/$${$userId}/wallet")  // /users/${userIdAtribute}/wallet
+    .header("Http-Auth-Token", "${userToken}")
+    .check(jsonPath("$.value").exists.saveAs("userWalletValue"))
+
+  def getUserAndCheckId(userIdAttr: String, userTokenAttr: String) = http("get user")
+    .get(s"/users/$${$userIdAttr}")
+    .check(jsonPath("$.id").is(s"$${$userIdAttr}"))
+
+  exec(getUserWalletValue("userIdAtribute", "userTokenAttribute"))
+
+  //  exec(getUserWalletValueById(Random.nextInt(10)))
+
+
+  def authenticateUserAndSaveToken(userAttrName: String, tokenAttrName: String, idAttrName: String) = {
     exec(http("Authenticate user").post("/authenticate")
       .body(
         StringBody(
@@ -111,29 +154,74 @@ object ExampleSteps extends StepsBase {
           )
         )
       ).asJSON
-      .check(jsonPath("$.token").exists.saveAs(tokenAttrName)))
+      .check(jsonPath("$.token").exists.saveAs(tokenAttrName))
+      .check(jsonPath("$.user.id").exists.saveAs(idAttrName))
+    )
   }
 
-    def authenticateUserAndSaveToFile(userAttrName: String, tokenAttrName: String) = {
-      exec(http("Authenticate user").post("/authenticate")
-        .body(
-          StringBody(
-            session => jsonStringFromObject(
-              AuthorizationRequest(
-                session(userAttrName).as[User].username,
-                session(userAttrName).as[User].password
-              )
+  def authenticateUserAndSaveTokenWithExpression(se: Expression[String], userAttrName: String, tokenAttrName: String, idAttrName: String) = {
+    exec(http("Authenticate user").post("/authenticate")
+      .body(
+        StringBody(
+          se
+        )
+      ).asJSON
+      .check(jsonPath("$.token").exists.saveAs(tokenAttrName))
+      .check(jsonPath("$.user.id").exists.saveAs(idAttrName))
+    )
+  }
+
+  //  exec(authenticateUserAndSaveTokenWithExpression(
+  //    session => jsonStringFromObject(
+  //    AuthorizationRequest(
+  //      session("").as[User].username,
+  //      session("").as[User].password
+  //    )
+  //  ), "aaaa", "bbbb", "ccccc"))
+  //
+
+  def authenticateUserAndSaveToFile(userAttrName: String, tokenAttrName: String) = {
+    exec(http("Authenticate user").post("/authenticate")
+      .body(StringBody(_ => s"""... ${System.currentTimeMillis()} ...""" ))
+      .body(
+        StringBody(
+          session => jsonStringFromObject(
+            AuthorizationRequest(
+              session(userAttrName).as[User].username,
+              session(userAttrName).as[User].password
             )
           )
-        ).asJSON
-        .check(jsonPath("$.token").exists.saveAs(tokenAttrName)))
-        .exec(session => {
-          File("sampleFile.txt")
-            .createFile()
-            .appendAll(s"${session(userAttrName).as[User].username}, ${session(userAttrName).as[User].password}, ${session(tokenAttrName).as[String]}\n")
-          session
-        })
-    }
+        )
+      ).asJSON
+      .check(jsonPath("$.token").exists.saveAs(tokenAttrName)))
+      .exec(session => {
+        File("sampleFile.txt")
+          .createFile()
+          .appendAll(s"${session(userAttrName).as[User].username}, ${session(userAttrName).as[User].password}, ${session(tokenAttrName).as[String]}\n")
+        session
+      })
+  }
+
+  def getUserWalletValue(idAttrName: String, tokenAttrName: String, valueAttrName: String, extraChecks: HttpCheck*) =
+    http("Get user wallet")
+      .get("/users/${" + idAttrName + "}/wallet")
+      .header("Http-Auth-Token", "${"+ tokenAttrName +"}")
+      .check(status.is(200))
+      .check(jsonPath("$.value").ofType[Double].exists.saveAs(valueAttrName))
+      .check(extraChecks: _*)
+
+//  exec(getUserWalletValue("userData", "userToken", "walletAmount")
+//
+//  exec(getUserWalletValue("userData", "userToken", "walletAmount", jsonPath("$.id").exists, responseTimeInMillis.lessThan(500)))
+//
+//  exec(getUserWalletValue("userData", "userToken", "walletAmount", responseTimeInMillis.lessThan(1000)))
 
 
+
+  def payIntoUserWallet(idAttrName: String, tokenAttrName: String, value: Double) =
+    http("Pay into wallet")
+      .get("/users/${" + idAttrName + s"}/wallet/payin?value=$value")
+      .header("Http-Auth-Token", "${"+ tokenAttrName +"}")
+      .check(status.is(200))
+      .check(bodyString.is("OK"))
 }
